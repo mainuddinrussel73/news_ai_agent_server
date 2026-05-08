@@ -368,7 +368,7 @@ export async function runMultiNewsScraper(io) {
 
               } finally {
 
-                await p.close();
+                await page.close();
 
               }
             })
