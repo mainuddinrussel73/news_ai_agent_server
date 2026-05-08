@@ -93,7 +93,7 @@ async function autoScroll(page) {
       window.scrollBy(0, document.body.scrollHeight);
     });
 
-    await page.waitForTimeout(1200);
+    await new Promise(resolve => setTimeout(resolve, 1200));
   }
 }
 
