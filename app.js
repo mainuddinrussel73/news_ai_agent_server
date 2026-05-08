@@ -9,7 +9,7 @@ const server = http.createServer(app);
 
 // 🔥 MUST BE FIRST (before routes)
 app.use(cors({
-  origin: "http://localhost:3000",
+   origin: "*",   
   methods: ["GET", "POST"],
   credentials: true
 }));
@@ -19,7 +19,7 @@ app.use(express.json());
 // socket
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+     origin: "*",   
     methods: ["GET", "POST"]
   }
 });
@@ -31,6 +31,9 @@ io.on("connection", () => {
   console.log("Client connected");
 });
 
-server.listen(5000, () => {
-  console.log("Server running on 5000");
+// 🔥 Render PORT fix (VERY IMPORTANT)
+const PORT = process.env.PORT || 5000;
+
+server.listen(PORT, () => {
+  console.log("Server running on", PORT);
 });
