@@ -1,0 +1,4 @@
+export const config = {
+    OPENAI_API_KEY: "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",
+    PORT: 5000
+};
