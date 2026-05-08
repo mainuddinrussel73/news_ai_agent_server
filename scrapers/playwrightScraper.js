@@ -266,7 +266,7 @@ export async function runMultiNewsScraper(io) {
         const page = await browser.newPage();
 
         await page.goto(sectionUrl, {
-          waitUntil: "commit",
+          waitUntil: "domcontentloaded",
           timeout: 90000
         });
         
@@ -319,7 +319,7 @@ export async function runMultiNewsScraper(io) {
               try {
 
                 await page.goto(article.url, {
-                  waitUntil: "commit",
+                  waitUntil: "domcontentloaded",
                   timeout: 90000
                 });
 
