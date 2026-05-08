@@ -1,4 +1,5 @@
-import { chromium } from "playwright";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 import pLimit from "p-limit";
 import { loadCache, saveCache } from "../utils/cache.js";
 
@@ -213,20 +214,14 @@ function isSectionArticle(articleUrl, siteBase, section) {
 // ======================================================
 export async function runMultiNewsScraper(io) {
 
-  const browser = await chromium.launch({
-    headless: true,
-     args: [
-    "--no-sandbox",
-    "--disable-setuid-sandbox"
-  ]
-  });
+  const browser = await puppeteer.launch({
+  args: chromium.args,
+  defaultViewport: chromium.defaultViewport,
+  executablePath: await chromium.executablePath(),
+  headless: chromium.headless,
+});
 
-  const context = await browser.newContext({
-    viewport: {
-      width: 1440,
-      height: 900
-    }
-  });
+  
 
   // 🔥 LOAD CACHE FIRST
   const cached = loadCache();
@@ -264,12 +259,13 @@ export async function runMultiNewsScraper(io) {
 
       try {
 
-        const page = await context.newPage();
+        const page = await browser.newPage();
 
         await page.goto(sectionUrl, {
           waitUntil: "domcontentloaded",
           timeout: 30000
         });
+        
 
         await autoScroll(page);
 
@@ -314,7 +310,7 @@ export async function runMultiNewsScraper(io) {
           articles.map(article =>
             limit(async () => {
 
-              const p = await context.newPage();
+              const page = await browser.newPage();
 
               try {
 
