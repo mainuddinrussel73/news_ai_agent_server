@@ -125,26 +125,30 @@ async function extractArticleDetails(page) {
     function extractParagraphs() {
       const selectors = [
         "article p",
-        ".story-element-text p",
-        ".content p",
-        ".details p",
-        ".item-page p",
-        ".field-item p",
-        ".field--name-body p",
         ".entry-content p",
         ".post-content p",
+        ".content p",
+        ".details p",
+        ".story-element-text p",
+        ".field--name-body p",
         "div[class*='content'] p",
-        "div[class*='story'] p",
-        "div p"
+        "div[class*='story'] p"
       ];
 
       for (const selector of selectors) {
         const nodes = document.querySelectorAll(selector);
 
-        if (nodes.length > 3) {
-          return Array.from(nodes)
-            .map(el => el.innerText.trim())
-            .filter(Boolean);
+        const texts = Array.from(nodes)
+          .map(el => el.innerText?.trim())
+          .filter(t =>
+            t &&
+            t.length > 40 &&              // remove noise
+            !t.includes("cookie") &&     // remove banners
+            !t.includes("subscribe")
+          );
+
+        if (texts.length > 2) {
+          return texts;
         }
       }
 
@@ -155,33 +159,28 @@ async function extractArticleDetails(page) {
 
     const title =
       document.querySelector("h1")?.innerText?.trim() ||
-      document.title;
+      document.title ||
+      "";
 
     const image =
-      document.querySelector('meta[property="og:image"]')
-        ?.content ||
-      document.querySelector("img")?.src ||
+      document.querySelector('meta[property="og:image"]')?.content ||
+      document.querySelector("article img")?.src ||
       null;
 
     const date =
-      document.querySelector("time")
-        ?.getAttribute("datetime") ||
-      document.querySelector(
-        'meta[property="article:published_time"]'
-      )?.content ||
+      document.querySelector("time")?.getAttribute("datetime") ||
+      document.querySelector('meta[property="article:published_time"]')?.content ||
       null;
 
     const author =
-      document.querySelector("[rel='author']")
-        ?.innerText ||
-      document.querySelector(".author")
-        ?.innerText ||
+      document.querySelector("[rel='author']")?.innerText?.trim() ||
+      document.querySelector(".author")?.innerText?.trim() ||
       null;
 
     return {
       title,
-      content: paragraphs.join(" "),
-      summary: paragraphs.slice(0, 4).join(" "),
+      content: paragraphs.join("\n\n"),
+      summary: paragraphs.slice(0, 3).join(" "),
       image,
       date,
       author
@@ -319,15 +318,14 @@ export async function runMultiNewsScraper(io) {
 
               try {
 
-                await p.goto(article.url, {
+                await page.goto(article.url, {
                   waitUntil: "domcontentloaded",
                   timeout: 25000
                 });
 
-                await p.waitForTimeout(1500);
-
+                await new Promise(resolve => setTimeout(resolve, 1500));
                 const details =
-                  await extractArticleDetails(p);
+                  await extractArticleDetails(page);
 
                 return {
 
