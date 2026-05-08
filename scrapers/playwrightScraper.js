@@ -214,7 +214,11 @@ function isSectionArticle(articleUrl, siteBase, section) {
 export async function runMultiNewsScraper(io) {
 
   const browser = await chromium.launch({
-    headless: true
+    headless: true,
+     args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox"
+  ]
   });
 
   const context = await browser.newContext({
