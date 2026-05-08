@@ -214,7 +214,7 @@ function isSectionArticle(articleUrl, siteBase, section) {
 // ======================================================
 export async function runMultiNewsScraper(io) {
 
-  await puppeteer.launch({
+  const browser = await puppeteer.launch({
   args: [
     ...chromium.args,
     "--no-sandbox",
